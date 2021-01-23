@@ -118,17 +118,17 @@ drawImage w3m@(W3m w3mPath) path = do
     tsize <- getTerminalSize w3m
     isize <- getImageSize w3m path
     let (x, y, w, h) = fit tsize isize
-        command =
+        command p =
             "0;1;" ++
             show x ++ ";" ++ show y ++ ";" ++ show w ++ ";" ++ show h ++
-            ";;;;;" ++ path ++ "\n4;\n3;\n"
+            ";;;;;" ++ p ++ "\n4;\n3;\n"
 
     -- Draw image.
-    _ <- Process.readProcess w3mPath [] command
+    _ <- Process.readProcess w3mPath [] (command path)
 
-    -- Return a 'Cleanup' that clears the image.
-    return $ void $ Process.readProcess w3mPath [] $
-        "6;" ++ intercalate ";" (map show [x, y, w, h])
+    -- Return a 'Cleanup' that clears the image. Yes; I've only used this for
+    -- one presentation that contains this precise image.
+    return $ void $ Process.readProcess w3mPath [] (command "spj-blank.png")
   where
     fit :: (Int, Int) -> (Int, Int) -> (Int, Int, Int, Int)
     fit (tw, th) (iw0, ih0) =
